@@ -128,7 +128,7 @@
 {/if}
 
 {#if open && buttons?.length}
-  <SuperPopover {anchor} open>
+  <SuperPopover {anchor} open align="right">
 		<div class="button-list">
 			{#if buttons?.length}
     	  {#each buttons as button}
@@ -141,6 +141,7 @@
 					  {disabled}
 					  menuItem
 					  onClick={enrichButtonActions(button.onClick, $context )}
+            on:click={() => open = false}
 				  />
   		  {/each}
 		  {/if}
@@ -173,6 +174,11 @@
   }
 
 	.button-list {
-		min-width: 120px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+		min-width: 180px;
 	}
 </style>
