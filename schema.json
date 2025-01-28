@@ -13,24 +13,13 @@
     "settings": [
       {
         "type": "select",
-        "key": "mode",
-        "label": "Toolbar Type",
-        "defaultValue": "normal",
-        "options": [
-          { "label": "Normal", "value": "normal" },
-          { "label": "ON / OFF", "value": "onoff" },
-          { "label": "Multi ON / OFF", "value": "multiOnoff" }
-        ]
-      },
-      {
-        "type": "select",
         "key": "buttonClass",
         "label": "Button Class",
         "options": [
           { "label": "Button", "value": "button" },
           { "label": "Action Button", "value": "actionButton" }
         ],
-        "defaultValue": "button"
+        "defaultValue": "actionButton"
       },
       {
         "type": "select",
@@ -119,26 +108,14 @@
         "key": "disabled"
       },
       {
-        "type": "boolean",
-        "label": "In Nav Bar",
-        "key": "inNavBar"
-      },
-      {
-        "type": "boolean",
-        "label": "Hide Portal",
-        "key": "hidePortal",
-        "dependsOn": "inNavBar"
-      },
-      {
-        "type": "boolean",
-        "label": "Collapsible",
-        "key": "makeCollapsible",
-        "dependsOn": "inNavBar"
-      },
-      {
         "type": "buttonConfiguration",
         "key": "buttons",
-        "wide": true
+        "wide": true,
+        "defaultValue": [
+          {
+            "text": "Button 1"
+          }
+        ]
       },
       {
         "type": "boolean",
@@ -152,6 +129,16 @@
         "label": "Collapsed Text",
         "defaultValue": "Actions",
         "dependsOn": "collapsed"
+      },
+      {
+        "type": "icon",
+        "key": "icon",
+        "label": "Icon"
+      },
+      {
+        "type": "boolean",
+        "key": "iconFirst",
+        "label": "Icon First"
       }
     ]
   }

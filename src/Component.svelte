@@ -1,14 +1,12 @@
 <script>
-
-  import { getContext, onMount } from "svelte";
+  import { getContext, setContext } from "svelte";
   import SuperButton from "../../bb_super_components_shared/src/lib/SuperButton/SuperButton.svelte";
-	import SuperPopover from './../../bb_super_components_shared/src/lib/SuperPopover/SuperPopover.svelte';
-  import Portal from "svelte-portal";
-
-	const { styleable, builderStore, enrichButtonActions } = getContext("sdk");
+  import SuperPopover from "./../../bb_super_components_shared/src/lib/SuperPopover/SuperPopover.svelte";
+  import { writable } from "svelte/store";
+  const { styleable, builderStore, enrichButtonActions } = getContext("sdk");
   const component = getContext("component");
   const context = getContext("context");
-
+  const parentMenu = getContext("super-menu");
 
   export let direction = "row";
   export let buttonClass;
@@ -17,87 +15,50 @@
   export let iconOnly;
   export let compact;
   export let disabled;
-  export let inNavBar;
-  export let hidePortal
-  export let collapsed
-  export let collapsedText
-  export let collapsedIcon
-
-
-  export let makeCollapsible
+  export let collapsed;
+  export let collapsedText;
+  export let icon = "ri-arrow-down-s-line";
+  export let iconFirst;
 
   export let buttons;
   export let align = "flex-end";
 
-  let open = false
-  let anchor
+  let open = false;
+  let anchor;
+  let hovered;
+  let childHovered = new writable(0);
 
-	let leftNav
+  $: parentMenu?.set(open || hovered);
+  $: nested =
+    $component.ancestors.at(-2) == "plugin/bb-component-SuperButtonToolbar";
 
-  onMount( () => {
-    setTimeout( () =>  {leftNav = document.getElementsByClassName("nav--left").length }, 100);
-  })
-
+  setContext("super-menu", childHovered);
 </script>
 
-{#if inNavBar}
-  <Portal target={ leftNav ? ".nav" : ".logo"}>
-    <div use:styleable={$component.styles}>
+<div use:styleable={$component.styles}>
+  {#if collapsed}
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div class="wrapper" class:nested style:--justification={align}>
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div
-        class="spectrum-ActionGroup spectrum-ActionGroup--size{size}"
-        class:vertical={direction == "column"}
-        class:spectrum-ActionGroup--quiet={quiet}
-        class:spectrum-ActionGroup--compact={compact}
-        style:--justification={align}
-        style:justify-self={"flex-end"}
+        bind:this={anchor}
+        class="drop-menu"
+        class:open
+        class:small={size == "S"}
+        class:large={size == "L"}
+        class:nested
+        on:click={() => (open = !open)}
       >
-      {#if leftNav}
-        {@html "<style>  .links { flex : auto !important } </style>" }
-      {/if}
-
-      {#if makeCollapsible}
-        {@html "<style>  .nav--left { max-width: 3rem !important } </style>" }
-      {/if}
-
-      {#if hidePortal}
-        {@html "<style>  .portal { display : none !important } </style>" }
-      {/if}
-
-        {#if buttons?.length}
-          {#each buttons as { icon ,quiet, text, type , size, onClick }}
-            <SuperButton
-              {buttonClass}
-              {quiet}
-              {iconOnly}
-              {text}
-              {type}
-              {size}
-              {icon}
-              onClick={enrichButtonActions(onClick, $context )}
-            />
-          {/each}
-        {:else if $builderStore.inBuilder && $component.children < 1}
-          <span class="empty">Please Define Some Buttons </span>
+        {#if icon && iconFirst}
+          <i class={icon} />
         {/if}
-        <slot />
+        {collapsedText}
+        {#if (icon && !iconFirst) || nested}
+          <i class={nested ? "ri-arrow-right-s-line" : icon} />
+        {/if}
       </div>
     </div>
-  </Portal>
-{:else}
-  <div use:styleable={$component.styles}>
-    {#if collapsed}
-      <SuperButton
-        {buttonClass}
-        {quiet}
-        {iconOnly}
-        {size}
-        {disabled}
-        iconAfterText
-        text={collapsedText}
-        icon={"ri-arrow-down-s-line"}
-        on:click={(e) => {open = !open; if (!anchor) anchor = e.detail; }}
-      />
-    {:else}
+  {:else}
     <div
       class="spectrum-ActionGroup spectrum-ActionGroup--size{size}"
       class:vertical={direction == "column"}
@@ -114,7 +75,7 @@
             {...button}
             {size}
             {disabled}
-            onClick={enrichButtonActions(button.onClick, $context )}
+            onClick={enrichButtonActions(button.onClick, $context)}
           />
         {/each}
       {:else if $builderStore.inBuilder && $component.children < 1}
@@ -122,29 +83,41 @@
       {/if}
       <slot />
     </div>
-    {/if}
-  </div>
+  {/if}
+</div>
 
-{/if}
-
-{#if open && buttons?.length}
-  <SuperPopover {anchor} open align="right">
-		<div class="button-list">
-			{#if buttons?.length}
-    	  {#each buttons as button}
-				  <SuperButton
-					  {buttonClass}
-					  {quiet}
-					  {iconOnly}
-					  {...button}
-					  {size}
-					  {disabled}
-					  menuItem
-					  onClick={enrichButtonActions(button.onClick, $context )}
-            on:click={() => open = false}
-				  />
-  		  {/each}
-		  {/if}
+{#if open || $childHovered}
+  <SuperPopover
+    {anchor}
+    open
+    align={nested ? "right-outside" : align == "flex-start" ? "left" : "right"}
+    className={"super-menu"}
+    ignoreAnchor={false}
+    on:close={() => {
+      open = false;
+      $childHovered = false;
+    }}
+  >
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div class="button-list">
+      {#if buttons?.length}
+        {#each buttons as button}
+          <SuperButton
+            {buttonClass}
+            {quiet}
+            {iconOnly}
+            {...button}
+            {size}
+            {disabled}
+            menuItem
+            menuAlign={align == "flex-start" ? "left" : "right"}
+            iconAfterText={align != "flex-start"}
+            onClick={enrichButtonActions(button.onClick, $context)}
+            on:click={() => (open = false)}
+          />
+        {/each}
+      {/if}
+      <slot />
     </div>
   </SuperPopover>
 {/if}
@@ -157,7 +130,7 @@
     justify-content: var(--justification);
 
     &.vertical {
-      flex: none;
+      flex: none !important;
       flex-direction: column;
     }
   }
@@ -166,19 +139,70 @@
     gap: 0px;
   }
 
+  .wrapper {
+    flex: auto;
+    display: flex;
+    justify-content: var(--justification);
+
+    &.nested {
+      justify-content: stretch;
+    }
+  }
+
   .empty {
     min-height: 2.5rem;
     display: flex;
     align-items: center;
     padding-left: 1rem;
+    padding-right: 1rem;
   }
 
-	.button-list {
+  .button-list {
     padding: 0.5rem;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    gap: 0.25rem;
-		min-width: 180px;
-	}
+    align-items: stretch;
+    min-width: 180px;
+  }
+
+  .drop-menu {
+    min-height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0rem 1rem;
+    transition: 230;
+    opacity: 0.75;
+
+    &.small {
+      min-height: 1.75rem;
+    }
+
+    &.large {
+      min-height: 2.4rem;
+    }
+
+    &.nested {
+      flex: auto;
+      justify-content: space-between;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+    &.open {
+      color: var(--spectrum-global-color-gray-900);
+      background-color: var(--spectrum-global-color-gray-200);
+      opacity: 1;
+    }
+
+    &:hover {
+      background-color: var(--spectrum-global-color-gray-200);
+      opacity: 1;
+    }
+  }
+
+  :global(.super-menu) {
+    box-shadow: unset !important;
+    filter: unset !important;
+  }
 </style>
