@@ -92,7 +92,7 @@
     open
     align={nested ? "right-outside" : align == "flex-start" ? "left" : "right"}
     className={"super-menu"}
-    ignoreAnchor={false}
+    ignoreAnchor={true}
     on:close={() => {
       open = false;
       $childHovered = false;
@@ -198,6 +198,7 @@
     &:hover {
       background-color: var(--spectrum-global-color-gray-200);
       opacity: 1;
+      cursor: pointer;
     }
   }
 
