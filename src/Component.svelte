@@ -30,7 +30,7 @@
 
   $: parentMenu?.set(open || hovered);
   $: nested =
-    $component.ancestors.at(-2) == "plugin/bb-component-SuperButtonToolbar";
+    $component?.path?.at(-2) == "plugin/bb-component-SuperButtonToolbar";
 
   setContext("super-menu", childHovered);
 </script>
@@ -163,6 +163,7 @@
     flex-direction: column;
     align-items: stretch;
     min-width: 180px;
+    gap: 0.25rem;
   }
 
   .drop-menu {
@@ -196,6 +197,7 @@
     }
 
     &:hover {
+      color: var(--spectrum-global-color-gray-900);
       background-color: var(--spectrum-global-color-gray-200);
       opacity: 1;
       cursor: pointer;
