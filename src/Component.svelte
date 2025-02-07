@@ -3,7 +3,8 @@
   import SuperButton from "../../bb_super_components_shared/src/lib/SuperButton/SuperButton.svelte";
   import SuperPopover from "./../../bb_super_components_shared/src/lib/SuperPopover/SuperPopover.svelte";
   import { writable } from "svelte/store";
-  const { styleable, builderStore, enrichButtonActions } = getContext("sdk");
+  const { styleable, builderStore, enrichButtonActions, screenStore } =
+    getContext("sdk");
   const component = getContext("component");
   const context = getContext("context");
   const parentMenu = getContext("super-menu");
@@ -28,9 +29,26 @@
   let hovered;
   let childHovered = new writable(0);
 
+  $: parent = lookupComponent(
+    $screenStore.activeScreen.props._children,
+    $component.path.at(-2)
+  );
+
+  const lookupComponent = (components, id) => {
+    let parent;
+    let pos = components?.findIndex((comp) => comp._id == id);
+    if (pos > -1) return components[pos];
+    else
+      components?.forEach((comp) => {
+        if (!parent) parent = lookupComponent(comp._children, id);
+      });
+
+    return parent;
+  };
+
+  $: nested = parent?._component == "plugin/bb-component-SuperButtonToolbar";
+
   $: parentMenu?.set(open || hovered);
-  $: nested =
-    $component?.path?.at(-2) == "plugin/bb-component-SuperButtonToolbar";
 
   setContext("super-menu", childHovered);
 </script>
