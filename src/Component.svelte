@@ -1,7 +1,6 @@
 <script>
   import { getContext, setContext } from "svelte";
-  import SuperButton from "../../bb_super_components_shared/src/lib/SuperButton/SuperButton.svelte";
-  import SuperPopover from "./../../bb_super_components_shared/src/lib/SuperPopover/SuperPopover.svelte";
+  import { SuperButton, SuperPopover } from "@poirazis/supercomponents-shared";
   import { writable } from "svelte/store";
   const { styleable, builderStore, enrichButtonActions, screenStore } =
     getContext("sdk");
@@ -18,7 +17,7 @@
   export let disabled;
   export let collapsed;
   export let collapsedText;
-  export let icon = "ri-arrow-down-s-line";
+  export let icon;
   export let iconFirst;
 
   export let buttons;
@@ -28,11 +27,6 @@
   let anchor;
   let hovered;
   let childHovered = new writable(0);
-
-  $: parent = lookupComponent(
-    $screenStore.activeScreen.props._children,
-    $component.path.at(-2)
-  );
 
   const lookupComponent = (components, id) => {
     let parent;
@@ -46,7 +40,13 @@
     return parent;
   };
 
-  $: nested = parent?._component == "plugin/bb-component-SuperButtonToolbar";
+  const parent = lookupComponent(
+    $screenStore.activeScreen.props._children,
+    $component.path.at(-2)
+  );
+
+  const nested = parent?._component == "plugin/bb-component-SuperButtonToolbar";
+  $: open = $component.inSelectedPath && !$component.selected && collapsed;
 
   $: parentMenu?.set(open || hovered);
 
@@ -107,10 +107,16 @@
 {#if open || $childHovered}
   <SuperPopover
     {anchor}
-    open
-    align={nested ? "right-outside" : align == "flex-start" ? "left" : "right"}
+    {open}
+    align={align == "flex-start"
+      ? nested
+        ? "left-outside"
+        : "left"
+      : nested
+        ? "right-outside"
+        : "right"}
     className={"super-menu"}
-    ignoreAnchor={true}
+    topOffset={0}
     on:close={() => {
       open = false;
       $childHovered = false;
@@ -180,8 +186,9 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    min-width: 180px;
+    min-width: 160px;
     gap: 0.25rem;
+    background-color: var(--spectrum-global-color-gray-50);
   }
 
   .drop-menu {
@@ -190,7 +197,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0rem 1rem;
+    padding: 0rem 0.75rem;
     transition: 230;
     opacity: 0.75;
 
@@ -223,7 +230,12 @@
   }
 
   :global(.super-menu) {
-    box-shadow: unset !important;
     filter: unset !important;
+    box-shadow:
+      0px 0px 0px rgba(3, 7, 18, 0.1),
+      1px 1px 1px rgba(3, 7, 18, 0.08),
+      1px 3px 3px rgba(3, 7, 18, 0.06),
+      3px 5px 5px rgba(3, 7, 18, 0.04),
+      4px 8px 8px rgba(3, 7, 18, 0.02) !important;
   }
 </style>

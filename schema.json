@@ -108,6 +108,12 @@
         "key": "disabled"
       },
       {
+        "type": "boolean",
+        "key": "collapsed",
+        "label": "Collapsed",
+        "dependsOn": "buttons"
+      },
+      {
         "type": "buttonConfiguration",
         "key": "buttons",
         "wide": true,
@@ -116,12 +122,6 @@
             "text": "Button 1"
           }
         ]
-      },
-      {
-        "type": "boolean",
-        "key": "collapsed",
-        "label": "Collapsed",
-        "dependsOn": "buttons"
       },
       {
         "type": "text",
@@ -133,12 +133,15 @@
       {
         "type": "icon",
         "key": "icon",
-        "label": "Icon"
+        "label": "Icon",
+        "defaultValue": "ri-menu-line",
+        "dependsOn": "collapsed"
       },
       {
         "type": "boolean",
         "key": "iconFirst",
-        "label": "Icon First"
+        "label": "Icon First",
+        "dependsOn": "collapsed"
       }
     ]
   }
