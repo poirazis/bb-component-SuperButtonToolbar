@@ -7,6 +7,7 @@
   const component = getContext("component");
   const context = getContext("context");
   const parentMenu = getContext("super-menu");
+  const parentMenuAlign = getContext("super-menu-align");
 
   export let direction = "row";
   export let buttonClass;
@@ -46,11 +47,32 @@
   );
 
   const nested = parent?._component == "plugin/bb-component-SuperButtonToolbar";
+  $: align = nested ? parentMenuAlign : align;
   $: open = $component.inSelectedPath && !$component.selected && collapsed;
+  $: icon = nested
+    ? parentMenuAlign == "flex-end"
+      ? "ri-arrow-left-s-line"
+      : "ri-arrow-right-s-line"
+    : icon;
+
+  $: iconFirst = nested
+    ? parentMenuAlign == "flex-end"
+      ? true
+      : false
+    : iconFirst;
 
   $: parentMenu?.set(open || hovered);
 
+  $: $component.styles = {
+    ...$component.styles,
+    normal: {
+      ...$component.styles.normal,
+      "max-width": nested ? "100%" : "fit-content",
+    },
+  };
+
   setContext("super-menu", childHovered);
+  $: setContext("super-menu-align", align);
 </script>
 
 <div use:styleable={$component.styles}>
@@ -71,8 +93,8 @@
           <i class={icon} />
         {/if}
         {collapsedText}
-        {#if (icon && !iconFirst) || nested}
-          <i class={nested ? "ri-arrow-right-s-line" : icon} />
+        {#if icon && !iconFirst}
+          <i class={icon} />
         {/if}
       </div>
     </div>
@@ -110,10 +132,14 @@
     {open}
     align={align == "flex-start"
       ? nested
-        ? "left-outside"
+        ? parentMenuAlign == "flex-start"
+          ? "right-outside"
+          : "left-outside"
         : "left"
       : nested
-        ? "right-outside"
+        ? parentMenuAlign == "flex-end"
+          ? "left-outside"
+          : "right-outside"
         : "right"}
     className={"super-menu"}
     topOffset={0}
@@ -128,7 +154,7 @@
         {#each buttons as button}
           <SuperButton
             {buttonClass}
-            {quiet}
+            quiet={true}
             {iconOnly}
             {...button}
             {size}
