@@ -119,9 +119,11 @@
         "wide": true,
         "defaultValue": [
           {
-            "text": "Button 1"
+            "text": "Button 1",
+            "quiet": true
           }
-        ]
+        ],
+        "nested": true
       },
       {
         "type": "text",
