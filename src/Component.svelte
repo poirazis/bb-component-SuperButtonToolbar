@@ -71,6 +71,38 @@
     },
   };
 
+  function shouldShowButton(conditions, row) {
+    if (!conditions || conditions.length === 0) return true;
+    return conditions.every((cond) => {
+      let left = row[cond.property];
+      let right = cond.value; // Resolve bindings if needed, e.g., via Handlebars
+      switch (cond.operator) {
+        case "equals":
+          return left === right;
+        case "notEquals":
+          return left !== right;
+        case "contains":
+          return typeof left === "string" && left.includes(right);
+        case "notContains":
+          return typeof left === "string" && !left.includes(right);
+        case "greaterThan":
+          return typeof left === "number" && left > right;
+        case "lessThan":
+          return typeof left === "number" && left < right;
+        case "greaterThanOrEqual":
+          return typeof left === "number" && left >= right;
+        case "lessThanOrEqual":
+          return typeof left === "number" && left <= right;
+        case "isEmpty":
+          return left == null || left === "";
+        case "isNotEmpty":
+          return left != null && left !== "";
+        default:
+          return false;
+      }
+    });
+  }
+
   setContext("super-menu", childHovered);
   $: setContext("super-menu-align", align);
 </script>
@@ -152,19 +184,24 @@
     <div class="button-list">
       {#if buttons?.length}
         {#each buttons as button}
-          <SuperButton
-            {buttonClass}
-            quiet={true}
-            {iconOnly}
-            {...button}
-            {size}
-            {disabled}
-            menuItem
-            menuAlign={align == "flex-start" ? "left" : "right"}
-            iconAfterText={align != "flex-start"}
-            onClick={enrichButtonActions(button.onClick, $context)}
-            on:click={() => (open = false)}
-          />
+          {#if shouldShowButton(button.conditions)}
+            <SuperButton
+              {buttonClass}
+              quiet={true}
+              {iconOnly}
+              {...button}
+              {size}
+              {disabled}
+              menuItem
+              menuAlign={align == "flex-start" ? "left" : "right"}
+              iconAfterText={align != "flex-start"}
+              onClick={() => {
+                let cmd = enrichButtonActions(button.onClick, $context);
+                cmd?.();
+                open = false;
+              }}
+            />
+          {/if}
         {/each}
       {/if}
       <slot />
