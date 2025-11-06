@@ -2,8 +2,13 @@
   import { getContext, setContext } from "svelte";
   import { SuperButton, SuperPopover } from "@poirazis/supercomponents-shared";
   import { writable } from "svelte/store";
-  const { styleable, builderStore, enrichButtonActions, screenStore } =
-    getContext("sdk");
+  const {
+    styleable,
+    builderStore,
+    enrichButtonActions,
+    screenStore,
+    processStringSync,
+  } = getContext("sdk");
   const component = getContext("component");
   const context = getContext("context");
   const parentMenu = getContext("super-menu");
@@ -47,6 +52,9 @@
   );
 
   const nested = parent?._component == "plugin/bb-component-SuperButtonToolbar";
+  $: actuveButtons = buttons?.filter((btn) =>
+    shouldShowButton(btn.conditions || [], $context)
+  );
   $: align = nested ? parentMenuAlign : align;
   $: open = $component.inSelectedPath && !$component.selected && collapsed;
   $: icon = nested
@@ -71,40 +79,72 @@
     },
   };
 
-  function shouldShowButton(conditions, row) {
-    if (!conditions || conditions.length === 0) return true;
-    return conditions.every((cond) => {
-      let left = row[cond.property];
-      let right = cond.value; // Resolve bindings if needed, e.g., via Handlebars
-      switch (cond.operator) {
+  setContext("super-menu", childHovered);
+  $: setContext("super-menu-align", align);
+
+  function shouldShowButton(conditions, context) {
+    function parseValue(val, typ) {
+      switch (typ.toLowerCase()) {
+        case "number":
+          return Number(val);
+        case "string":
+          return String(val);
+        case "boolean":
+          return val === "true" || val === true;
+        default:
+          return val;
+      }
+    }
+
+    function evaluateOperator(left, op, right) {
+      switch (op.toLowerCase()) {
+        case "equal":
         case "equals":
-          return left === right;
-        case "notEquals":
-          return left !== right;
+          return left == right; // loose for mixed types
+        case "not equal":
+        case "not equals":
+          return left != right;
+        case "greater than":
+          return left > right;
+        case "less than":
+          return left < right;
+        case "greater than or equal":
+          return left >= right;
+        case "less than or equal":
+          return left <= right;
         case "contains":
           return typeof left === "string" && left.includes(right);
-        case "notContains":
+        case "not contains":
           return typeof left === "string" && !left.includes(right);
-        case "greaterThan":
-          return typeof left === "number" && left > right;
-        case "lessThan":
-          return typeof left === "number" && left < right;
-        case "greaterThanOrEqual":
-          return typeof left === "number" && left >= right;
-        case "lessThanOrEqual":
-          return typeof left === "number" && left <= right;
-        case "isEmpty":
+        case "starts with":
+          return typeof left === "string" && left.startsWith(right);
+        case "ends with":
+          return typeof left === "string" && left.endsWith(right);
+        case "is empty":
           return left == null || left === "";
-        case "isNotEmpty":
+        case "is not empty":
           return left != null && left !== "";
         default:
           return false;
       }
-    });
+    }
+    if (!conditions || conditions.length === 0) return true;
+    const hasShow = conditions.some(
+      (cond) => cond.action.toLowerCase() === "show"
+    );
+    let visible = !hasShow;
+    for (const cond of conditions) {
+      const refVal = processStringSync(cond.referenceValue, context);
+      const newVal = processStringSync(cond.newValue, context);
+      const parsedRef = parseValue(refVal, cond.type);
+      const parsedNew = parseValue(newVal, cond.valueType);
+      const matches = evaluateOperator(parsedRef, cond.operator, parsedNew);
+      if (matches) {
+        visible = cond.action.toLowerCase() === "show";
+      }
+    }
+    return visible;
   }
-
-  setContext("super-menu", childHovered);
-  $: setContext("super-menu-align", align);
 </script>
 
 <div use:styleable={$component.styles}>
@@ -138,8 +178,8 @@
       class:spectrum-ActionGroup--compact={compact}
       style:--justification={align}
     >
-      {#if buttons?.length}
-        {#each buttons as button}
+      {#if actuveButtons?.length}
+        {#each actuveButtons as button}
           <SuperButton
             {buttonClass}
             {quiet}
