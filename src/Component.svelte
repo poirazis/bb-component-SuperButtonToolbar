@@ -162,11 +162,11 @@
         on:click={() => (open = !open)}
       >
         {#if icon && iconFirst}
-          <i class={icon} />
+          <i class={"ph ph-" + icon} />
         {/if}
         {collapsedText}
         {#if icon && !iconFirst}
-          <i class={icon} />
+          <i class={"ph ph-" + icon} />
         {/if}
       </div>
     </div>

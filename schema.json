@@ -133,10 +133,10 @@
         "dependsOn": "collapsed"
       },
       {
-        "type": "icon",
+        "type": "phosphorIcon",
         "key": "icon",
         "label": "Icon",
-        "defaultValue": "ri-menu-line",
+        "defaultValue": "list",
         "dependsOn": "collapsed"
       },
       {
