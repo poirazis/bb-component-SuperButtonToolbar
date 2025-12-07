@@ -2,8 +2,13 @@
   import { getContext, setContext } from "svelte";
   import { SuperButton, SuperPopover } from "@poirazis/supercomponents-shared";
   import { writable } from "svelte/store";
-  const { styleable, builderStore, enrichButtonActions, screenStore } =
-    getContext("sdk");
+  const {
+    styleable,
+    builderStore,
+    enrichButtonActions,
+    screenStore,
+    processStringSync,
+  } = getContext("sdk");
   const component = getContext("component");
   const context = getContext("context");
   const parentMenu = getContext("super-menu");
@@ -47,6 +52,9 @@
   );
 
   const nested = parent?._component == "plugin/bb-component-SuperButtonToolbar";
+  $: actuveButtons = buttons?.filter((btn) =>
+    shouldShowButton(btn.conditions || [], $context)
+  );
   $: align = nested ? parentMenuAlign : align;
   $: open = $component.inSelectedPath && !$component.selected && collapsed;
   $: icon = nested
@@ -73,6 +81,70 @@
 
   setContext("super-menu", childHovered);
   $: setContext("super-menu-align", align);
+
+  function shouldShowButton(conditions, context) {
+    function parseValue(val, typ) {
+      switch (typ.toLowerCase()) {
+        case "number":
+          return Number(val);
+        case "string":
+          return String(val);
+        case "boolean":
+          return val === "true" || val === true;
+        default:
+          return val;
+      }
+    }
+
+    function evaluateOperator(left, op, right) {
+      switch (op.toLowerCase()) {
+        case "equal":
+        case "equals":
+          return left == right; // loose for mixed types
+        case "not equal":
+        case "not equals":
+          return left != right;
+        case "greater than":
+          return left > right;
+        case "less than":
+          return left < right;
+        case "greater than or equal":
+          return left >= right;
+        case "less than or equal":
+          return left <= right;
+        case "contains":
+          return typeof left === "string" && left.includes(right);
+        case "not contains":
+          return typeof left === "string" && !left.includes(right);
+        case "starts with":
+          return typeof left === "string" && left.startsWith(right);
+        case "ends with":
+          return typeof left === "string" && left.endsWith(right);
+        case "is empty":
+          return left == null || left === "";
+        case "is not empty":
+          return left != null && left !== "";
+        default:
+          return false;
+      }
+    }
+    if (!conditions || conditions.length === 0) return true;
+    const hasShow = conditions.some(
+      (cond) => cond.action.toLowerCase() === "show"
+    );
+    let visible = !hasShow;
+    for (const cond of conditions) {
+      const refVal = processStringSync(cond.referenceValue, context);
+      const newVal = processStringSync(cond.newValue, context);
+      const parsedRef = parseValue(refVal, cond.type);
+      const parsedNew = parseValue(newVal, cond.valueType);
+      const matches = evaluateOperator(parsedRef, cond.operator, parsedNew);
+      if (matches) {
+        visible = cond.action.toLowerCase() === "show";
+      }
+    }
+    return visible;
+  }
 </script>
 
 <div use:styleable={$component.styles}>
@@ -90,11 +162,11 @@
         on:click={() => (open = !open)}
       >
         {#if icon && iconFirst}
-          <i class={icon} />
+          <i class={"ph ph-" + icon} />
         {/if}
         {collapsedText}
         {#if icon && !iconFirst}
-          <i class={icon} />
+          <i class={"ph ph-" + icon} />
         {/if}
       </div>
     </div>
@@ -106,8 +178,8 @@
       class:spectrum-ActionGroup--compact={compact}
       style:--justification={align}
     >
-      {#if buttons?.length}
-        {#each buttons as button}
+      {#if actuveButtons?.length}
+        {#each actuveButtons as button}
           <SuperButton
             {buttonClass}
             {quiet}
@@ -152,19 +224,24 @@
     <div class="button-list">
       {#if buttons?.length}
         {#each buttons as button}
-          <SuperButton
-            {buttonClass}
-            quiet={true}
-            {iconOnly}
-            {...button}
-            {size}
-            {disabled}
-            menuItem
-            menuAlign={align == "flex-start" ? "left" : "right"}
-            iconAfterText={align != "flex-start"}
-            onClick={enrichButtonActions(button.onClick, $context)}
-            on:click={() => (open = false)}
-          />
+          {#if shouldShowButton(button.conditions)}
+            <SuperButton
+              {buttonClass}
+              quiet={true}
+              {iconOnly}
+              {...button}
+              {size}
+              {disabled}
+              menuItem
+              menuAlign={align == "flex-start" ? "left" : "right"}
+              iconAfterText={align != "flex-start"}
+              onClick={() => {
+                let cmd = enrichButtonActions(button.onClick, $context);
+                cmd?.();
+                open = false;
+              }}
+            />
+          {/if}
         {/each}
       {/if}
       <slot />
