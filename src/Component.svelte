@@ -163,11 +163,11 @@
         on:click={() => (open = !open)}
       >
         {#if icon && iconFirst}
-          <i class={"ph ph-" + icon} style:color={iconColor || undefined} />
+          <i class={"ph ph-" + icon} style:color={iconColor} />
         {/if}
         {collapsedText}
         {#if icon && !iconFirst}
-          <i class={"ph ph-" + icon} style:color={iconColor || undefined} />
+          <i class={"ph ph-" + icon} style:color={iconColor} />
         {/if}
       </div>
     </div>
