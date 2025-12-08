@@ -344,11 +344,11 @@
       4px 8px 8px rgba(3, 7, 18, 0.02) !important;
   }
 
-  i.icon-small {
+  .ph.icon-small {
     font-size: 0.875rem;
   }
 
-  i.icon-large {
+  .ph.icon-large {
     font-size: 1.5rem;
   }
 </style>
