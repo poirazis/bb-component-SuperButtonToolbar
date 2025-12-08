@@ -24,6 +24,7 @@
   export let collapsed;
   export let collapsedText;
   export let icon;
+  export let iconSize = "M";
   export let iconColor;
   export let iconFirst;
 
@@ -163,11 +164,11 @@
         on:click={() => (open = !open)}
       >
         {#if icon && iconFirst}
-          <i class={"ph ph-" + icon} style:color={iconColor} />
+          <i class={"ph ph-" + icon} class:icon-small={iconSize == "S"} class:icon-large={iconSize == "L"} style:color={iconColor} />
         {/if}
         {collapsedText}
         {#if icon && !iconFirst}
-          <i class={"ph ph-" + icon} style:color={iconColor} />
+          <i class={"ph ph-" + icon} class:icon-small={iconSize == "S"} class:icon-large={iconSize == "L"} style:color={iconColor} />
         {/if}
       </div>
     </div>
@@ -341,5 +342,13 @@
       1px 3px 3px rgba(3, 7, 18, 0.06),
       3px 5px 5px rgba(3, 7, 18, 0.04),
       4px 8px 8px rgba(3, 7, 18, 0.02) !important;
+  }
+
+  i.icon-small {
+    font-size: 0.875rem;
+  }
+
+  i.icon-large {
+    font-size: 1.5rem;
   }
 </style>
