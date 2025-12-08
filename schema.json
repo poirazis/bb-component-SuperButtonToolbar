@@ -140,6 +140,12 @@
         "dependsOn": "collapsed"
       },
       {
+        "type": "color",
+        "key": "iconColor",
+        "label": "Icon Color",
+        "dependsOn": "collapsed"
+      },
+      {
         "type": "boolean",
         "key": "iconFirst",
         "label": "Icon First",

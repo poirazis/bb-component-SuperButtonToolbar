@@ -24,6 +24,7 @@
   export let collapsed;
   export let collapsedText;
   export let icon;
+  export let iconColor;
   export let iconFirst;
 
   export let buttons;
@@ -162,11 +163,11 @@
         on:click={() => (open = !open)}
       >
         {#if icon && iconFirst}
-          <i class={"ph ph-" + icon} />
+          <i class={"ph ph-" + icon} style:color={iconColor} />
         {/if}
         {collapsedText}
         {#if icon && !iconFirst}
-          <i class={"ph ph-" + icon} />
+          <i class={"ph ph-" + icon} style:color={iconColor} />
         {/if}
       </div>
     </div>
