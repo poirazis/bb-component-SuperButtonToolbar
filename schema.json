@@ -154,6 +154,33 @@
         "dependsOn": "collapsed"
       },
       {
+        "type": "select",
+        "key": "iconSize",
+        "label": "Icon Size",
+        "options": [
+          {
+            "label": "Small",
+            "value": "S"
+          },
+          {
+            "label": "Medium",
+            "value": "M"
+          },
+          {
+            "label": "Large",
+            "value": "L"
+          }
+        ],
+        "defaultValue": "M",
+        "dependsOn": "collapsed"
+      },
+      {
+        "type": "color",
+        "key": "iconColor",
+        "label": "Icon Color",
+        "dependsOn": "collapsed"
+      },
+      {
         "type": "boolean",
         "key": "iconFirst",
         "label": "Icon First",

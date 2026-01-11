@@ -24,6 +24,8 @@
   export let collapsed;
   export let collapsedText;
   export let icon;
+  export let iconSize = "M";
+  export let iconColor;
   export let iconFirst;
 
   export let buttons;
@@ -340,5 +342,13 @@
       1px 3px 3px rgba(3, 7, 18, 0.06),
       3px 5px 5px rgba(3, 7, 18, 0.04),
       4px 8px 8px rgba(3, 7, 18, 0.02) !important;
+  }
+
+  .ph.icon-small {
+    font-size: 0.875rem;
+  }
+
+  .ph.icon-large {
+    font-size: 1.5rem;
   }
 </style>
