@@ -31,7 +31,8 @@
     "tar": "^6.2.1",
     "svelte-preprocess": "^5.1.4",
     "typescript": "^5.8.3",
-    "sass": "^1.89.0"
+    "sass": "^1.89.0",
+    "svelte": "^5.0.0"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
