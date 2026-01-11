@@ -13,7 +13,7 @@
   "dependencies": {
     "@spectrum-css/actiongroup": "^3.0.61",
     "@poirazis/supercomponents-shared": "latest",
-    "svelte-portal": "^2.2.1"
+    "@jsrob/svelte-portal": "^0.2.1"
   },
   "devDependencies": {
     "@budibase/backend-core": "^2.8.0",
