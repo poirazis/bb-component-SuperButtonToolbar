@@ -1,6 +1,8 @@
 {
   "type": "component",
-  "metadata": {},
+  "metadata": {
+    "svelteMajor": 5
+  },
   "schema": {
     "name": "bb-component-SuperButtonToolbar",
     "friendlyName": "Super Button Toolbar",
@@ -9,15 +11,25 @@
     "hasChildren": true,
     "showEmptyState": false,
     "block": false,
-    "styles": ["padding", "background", "border"],
+    "styles": [
+      "padding",
+      "background",
+      "border"
+    ],
     "settings": [
       {
         "type": "select",
         "key": "buttonClass",
         "label": "Button Class",
         "options": [
-          { "label": "Button", "value": "button" },
-          { "label": "Action Button", "value": "actionButton" }
+          {
+            "label": "Button",
+            "value": "button"
+          },
+          {
+            "label": "Action Button",
+            "value": "actionButton"
+          }
         ],
         "defaultValue": "actionButton"
       },
@@ -60,9 +72,16 @@
             "value": "center",
             "barIcon": "TextAlignCenter"
           },
-          { "label": "Right", "value": "flex-end", "barIcon": "TextAlignRight" }
+          {
+            "label": "Right",
+            "value": "flex-end",
+            "barIcon": "TextAlignRight"
+          }
         ],
-        "dependsOn": { "setting": "direction", "value": "row" },
+        "dependsOn": {
+          "setting": "direction",
+          "value": "row"
+        },
         "defaultValue": "flex-start"
       },
       {
@@ -114,15 +133,10 @@
         "dependsOn": "buttons"
       },
       {
-        "type": "buttonConfiguration",
+        "type": "componentConfiguration",
+        "componentType": "plugin/bb-component-SuperButton",
         "key": "buttons",
         "wide": true,
-        "defaultValue": [
-          {
-            "text": "Button 1",
-            "quiet": true
-          }
-        ],
         "nested": true
       },
       {
