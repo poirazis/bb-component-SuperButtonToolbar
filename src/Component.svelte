@@ -24,8 +24,6 @@
   export let collapsed;
   export let collapsedText;
   export let icon;
-  export let iconSize = "M";
-  export let iconColor;
   export let iconFirst;
 
   export let buttons;
